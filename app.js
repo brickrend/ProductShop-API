@@ -1,13 +1,18 @@
+// express
 const express = require("express");
 // data
 const products = require("./data");
-// express
+//cors
+const cors = require("cors");
+
 const app = express();
 
-app.get("/products", (req, res) => {
+app.use(cors());
+
+app.get("/product", (req, res) => {
   res.json(products);
 });
 
 app.listen(8000, () => {
-  console.log("boom wsdorked");
+  console.log("workding");
 });
