@@ -46,6 +46,21 @@ app.post("/product", (req, res) => {
   res.status(201).json(newProduct);
 });
 
+app.put("/product/:productId", (req, res) => {
+  const productId = req.params.productId;
+  console.log(productId);
+  let foundProduct = products.find((product) => product.id === +productId);
+
+  if (foundProduct) {
+    for (let key in req.body) foundProduct[key] = req.body[key];
+    console.log(foundProduct);
+    foundProduct.slug = slugify(foundProduct.name, { lower: true });
+    res.status(204).end();
+  } else {
+    res.status(404).json({ message: "not found" });
+  }
+});
+
 app.listen(8000, () => {
   console.log("working");
 });
