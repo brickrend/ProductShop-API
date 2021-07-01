@@ -1,27 +1,11 @@
-// express
-const express = require("express");
-// data
-let products = require("./data");
-//cors
-const cors = require("cors");
-const bodyParser = require("body-parser");
-
-//components
+let products = require("../data");
 const slugify = require("slugify");
-const productRouter = require("./Routers/product");
 
-const app = express();
-
-//midlleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use("/product", productRouter);
-
-app.get("/product", (req, res) => {
+exports.getList = (req, res) => {
   res.json(products);
-});
+};
 
-app.delete("/product/:productId", (req, res) => {
+exports.deleteProduct = (req, res) => {
   const productId = req.params.productId;
   console.log(productId);
   const foundProduct = products.find((product) => product.id === +productId);
@@ -33,9 +17,9 @@ app.delete("/product/:productId", (req, res) => {
   } else {
     res.status(404).json({ message: "not found" });
   }
-});
+};
 
-app.post("/product", (req, res) => {
+exports.createProduct = (req, res) => {
   console.log(req);
   const id = products.length + 1;
   const slug = slugify(req.body.name, { lower: true });
@@ -46,9 +30,9 @@ app.post("/product", (req, res) => {
   };
   products.push(newProduct);
   res.status(201).json(newProduct);
-});
+};
 
-app.put("/product/:productId", (req, res) => {
+exports.updateProduct = (req, res) => {
   const productId = req.params.productId;
   console.log(productId);
   let foundProduct = products.find((product) => product.id === +productId);
@@ -61,8 +45,4 @@ app.put("/product/:productId", (req, res) => {
   } else {
     res.status(404).json({ message: "not found" });
   }
-});
-
-app.listen(8000, () => {
-  console.log("working");
-});
+};
