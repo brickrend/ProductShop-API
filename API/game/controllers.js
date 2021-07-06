@@ -1,4 +1,3 @@
-const slugify = require("slugify");
 const { Product } = require("../../db/models");
 
 exports.getList = async (req, res) => {
@@ -12,42 +11,46 @@ exports.getList = async (req, res) => {
   }
 };
 
-exports.deleteProduct = (req, res) => {
-  const productId = req.params.productId;
-
-  const foundProduct = products.find((product) => product.id === +productId);
-
-  if (foundProduct) {
-    products = products.filter((product) => product.id !== +productId);
-    res.json(products).status(204).end;
-  } else {
-    res.status(404).json({ message: "not found" });
+exports.createProduct = async (req, res) => {
+  try {
+    const newProduct = await Product.create(req.body);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-exports.createProduct = (req, res) => {
-  const id = products.length + 1;
-  const slug = slugify(req.body.name, { lower: true });
-  const newProduct = {
-    id,
-    slug,
-    ...req.body,
-  };
-  products.push(newProduct);
-  res.status(201).json(newProduct);
-};
-
-exports.updateProduct = (req, res) => {
+exports.deleteProduct = async (req, res) => {
   const productId = req.params.productId;
 
-  let foundProduct = products.find((product) => product.id === +productId);
+  try {
+    const foundProduct = await Product.findByPk(productId);
 
-  if (foundProduct) {
-    for (let key in req.body) foundProduct[key] = req.body[key];
+    if (foundProduct) {
+      await foundProduct.destroy();
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-    foundProduct.slug = slugify(foundProduct.name, { lower: true });
-    res.status(204).end();
-  } else {
-    res.status(404).json({ message: "not found" });
+exports.updateProduct = async (req, res) => {
+  const productId = req.params.productId;
+
+  try {
+    let foundProduct = await Product.findByPk(productId);
+
+    if (foundProduct) {
+      await foundProduct.update(req.body);
+
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
