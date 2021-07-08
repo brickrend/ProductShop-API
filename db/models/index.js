@@ -43,4 +43,16 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// reltions between Models
+db.Shop.hasMany(db.Product, {
+  foreignKey: "shopId",
+  allowNull: false,
+  as: "product",
+});
+
+db.Product.belongsTo(db.Shop, {
+  as: "shop",
+  foreignKey: "shopId",
+});
+
 module.exports = db;

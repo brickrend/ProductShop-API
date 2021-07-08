@@ -3,17 +3,17 @@ const multer = require("multer");
 
 const {
   getList,
-  deleteProduct,
+  createShop,
+  fetchShop,
   createProduct,
-  updateProduct,
-  fetchProduct,
 } = require("./controllers");
+
 const router = express.Router();
 
-router.param("productId", async (req, res, next, productId) => {
-  const product = await fetchProduct(productId, next);
-  if (product) {
-    req.product = product;
+router.param("shopId", async (req, res, next, shopId) => {
+  const shop = await fetchShop(shopId, next);
+  if (shop) {
+    req.shop = shop;
     next();
   } else {
     const error = new Error("Product not found");
@@ -22,7 +22,6 @@ router.param("productId", async (req, res, next, productId) => {
   }
 });
 
-// multer
 const storage = multer.diskStorage({
   destination: "./media",
   filename: (req, file, cb) => {
@@ -32,16 +31,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// product List
 router.get("/", getList);
 
-// product delete
-router.delete("/:productId", deleteProduct);
+router.post("/", upload.single("image"), createShop);
 
-// product create
-router.post("/", upload.single("image"), createProduct);
-
-// product update
-router.put("/:productId", upload.single("image"), updateProduct);
+router.post("/:shopId/product", upload.single("image"), createProduct);
 
 module.exports = router;

@@ -1,18 +1,33 @@
-const { Product } = require("../../db/models");
+const { Product, Shop } = require("../../db/models");
 
-exports.getList = async (req, res) => {
+exports.fetchProduct = async (productId, next) => {
   try {
-    const product = await Product.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-    });
-    res.json(product);
+    const product = await Product.findByPk(productId);
+    return product;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.createProduct = async (req, res) => {
+exports.getList = async (req, res, next) => {
   try {
+    const product = await Product.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: Shop,
+        as: "shop",
+        attributes: ["name"],
+      },
+    });
+    res.json(product);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createProduct = async (req, res, next) => {
+  try {
+    if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
     const newProduct = await Product.create(req.body);
     res.status(201).json(newProduct);
   } catch (error) {
@@ -20,37 +35,22 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-exports.deleteProduct = async (req, res) => {
-  const productId = req.params.productId;
-
+exports.deleteProduct = async (req, res, next) => {
   try {
-    const foundProduct = await Product.findByPk(productId);
-
-    if (foundProduct) {
-      await foundProduct.destroy();
-      res.status(204).end();
-    } else {
-      res.status(404).json({ message: "not found" });
-    }
+    await req.product.destroy();
+    res.status(204).end();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.updateProduct = async (req, res) => {
-  const productId = req.params.productId;
-
+exports.updateProduct = async (req, res, next) => {
   try {
-    let foundProduct = await Product.findByPk(productId);
+    if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
+    await req.product.update(req.body);
 
-    if (foundProduct) {
-      await foundProduct.update(req.body);
-
-      res.status(204).end();
-    } else {
-      res.status(404).json({ message: "not found" });
-    }
+    res.status(204).end();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
