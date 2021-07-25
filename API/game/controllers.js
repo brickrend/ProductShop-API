@@ -25,16 +25,6 @@ exports.getList = async (req, res, next) => {
   }
 };
 
-exports.createProduct = async (req, res, next) => {
-  try {
-    if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
-    const newProduct = await Product.create(req.body);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.deleteProduct = async (req, res, next) => {
   try {
     await req.product.destroy();

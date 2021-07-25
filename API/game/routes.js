@@ -4,10 +4,12 @@ const multer = require("multer");
 const {
   getList,
   deleteProduct,
-  createProduct,
   updateProduct,
   fetchProduct,
 } = require("./controllers");
+
+const { createProduct } = require("../shop/controllers");
+
 const router = express.Router();
 
 router.param("productId", async (req, res, next, productId) => {

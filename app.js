@@ -1,7 +1,10 @@
 // express
 const express = require("express");
-// data
-let products = require("./data");
+// passport
+const passport = require("passport");
+const { localStrategy } = require("./middleware/passport");
+const { jwtStrategy } = require("./middleware/passport");
+
 //cors
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -9,18 +12,23 @@ const bodyParser = require("body-parser");
 //Routers
 const productRouter = require("./API/game/routes");
 const shopRouter = require("./API/shop/routes");
+const userRouter = require("./API/user/routes");
 // database
 const db = require("./db/models/index");
-// const e = require("express");
 
 const app = express();
 
 //midlleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(passport.initialize());
+passport.use(localStrategy);
+passport.use(jwtStrategy);
 
+//routes
 app.use("/product", productRouter);
 app.use("/shop", shopRouter);
+app.use(userRouter);
 app.use("/media", express.static("media"));
 
 app.use((err, req, res, next) => {
